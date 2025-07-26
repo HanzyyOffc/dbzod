@@ -1,150 +1,214 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login & Tambah Nomor</title>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap" rel="stylesheet">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Orbitron', sans-serif;
-    }
-    body {
-      background: radial-gradient(circle at center, #0f0f0f, #000);
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      overflow: hidden;
-      color: white;
-    }
-    .container {
-      text-align: center;
-      background: rgba(255,255,255,0.05);
-      padding: 30px;
-      border-radius: 20px;
-      box-shadow: 0 0 20px #00ffdd44;
-    }
-    input {
-      padding: 10px;
-      margin: 10px 0;
-      width: 100%;
-      border: none;
-      border-radius: 5px;
-    }
-    button {
-      background: transparent;
-      color: #fff;
-      border: 2px solid #00ffff;
-      padding: 12px 24px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      position: relative;
-      overflow: hidden;
-      margin-top: 15px;
-    }
-    button::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -75%;
-      width: 50%;
-      height: 100%;
-      background: rgba(0,255,255,0.3);
-      transform: skewX(-20deg);
-      transition: 0.5s;
-    }
-    button:hover::before {
-      left: 150%;
-    }
-    button.glitch {
-      animation: glitch 2s infinite;
-    }
-    @keyframes glitch {
-      0% { text-shadow: 1px 1px red; }
-      20% { text-shadow: -1px -1px lime; }
-      40% { text-shadow: 2px -2px blue; }
-      60% { text-shadow: -2px 2px yellow; }
-      80% { text-shadow: 1px -1px magenta; }
-      100% { text-shadow: 0px 0px white; }
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <title>Login & Tambah Nomor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@500&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container {
+      background: rgba(20, 20, 20, 0.8);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #00f7ff66;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      z-index: 2;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #00f7ff;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      background: #1f1f1f;
+      color: white;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 12px 20px;
+      width: 100%;
+      background: linear-gradient(45deg, #00f7ff, #0ef);
+      border: none;
+      border-radius: 10px;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button:hover {
+      background: linear-gradient(45deg, #0ef, #00f7ff);
+      transform: scale(1.03);
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+  </style>
 </head>
 <body>
-  <div class="container" id="app">
-    <h2>Login</h2>
-    <input type="text" id="username" placeholder="Username">
-    <input type="password" id="password" placeholder="Password">
-    <button onclick="login()" class="glitch">LOGIN</button>
+  <canvas id="particles"></canvas>
+  <div class="container" id="loginContainer">
+    <h2>Login Admin</h2>
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+    <button onclick="login()">Login</button>
+  </div>
 
-    <div id="formNomor" style="display:none; margin-top:20px;">
-      <h3>Tambah Nomor</h3>
-      <input type="text" id="nomor" placeholder="628xxxx">
-      <button onclick="addNomor()" class="glitch">Tambah ke Database</button>
-    </div>
-  </div>
+  <div class="container hidden" id="addNumberContainer">
+    <h2>Tambah Nomor</h2>
+    <input type="text" id="phoneNumber" placeholder="08xxxxxxxxxx">
+    <button onclick="addNumberToGithub()">Tambah ke GitHub</button>
+  </div>
 
-  <script>
-    const RAW_URL = "https://github.com/HanzyyOffc/akun/raw/refs/heads/main/akun.json;
-    const REPO_URL = "https://github.com/HanzyyOffc/HanzyyOffc/raw/refs/heads/main/autenticator";
-    const TOKEN = "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"; // Ganti dengan GitHub Token kamu
+  <script>
+    const validUsers = {
+      'admin': '12345',
+      'hanzyy': 'offc123',
+    };
 
-    let authData = {};
-    async function login() {
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
+    function login() {
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value.trim();
 
-      const res = await fetch(RAW_URL);
-      authData = await res.json();
+      if (validUsers[user] === pass) {
+        document.getElementById('loginContainer').classList.add('hidden');
+        document.getElementById('addNumberContainer').classList.remove('hidden');
+      } else {
+        alert('Login gagal: Username atau Password salah');
+      }
+    }
 
-      if (user === authData.username && pass === authData.password) {
-        alert("✅ Login berhasil!");
-        document.getElementById("formNomor").style.display = "block";
-      } else {
-        alert("❌ Login gagal!");
-      }
-    }
+    async function addNumberToGithub() {
+      const number = document.getElementById('phoneNumber').value.trim();
+      if (!number.match(/^08\d{8,12}$/)) {
+        alert('Nomor tidak valid');
+        return;
+      }
 
-    async function addNomor() {
-      const nomor = document.getElementById("nomor").value.trim();
-      if (!nomor.startsWith("628")) {
-        return alert("❌ Nomor harus diawali 628...");
-      }
+      const GITHUB_TOKEN = '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'; // Ganti dengan token Anda
+      const USERNAME = 'HanzyyOffc'; // GitHub username
+      const REPO = 'HanzyyOffc';     // Repository
+      const FILENAME = 'autenticator'; // File di repo (path)
 
-      if (!authData.nomor.includes(nomor)) {
-        authData.nomor.push(nomor);
-      }
+      const apiURL = `https://api.github.com/repos/${USERNAME}/${REPO}/contents/${FILENAME}`;
 
-      const updateContent = btoa(JSON.stringify(authData, null, 2));
+      const res = await fetch(apiURL, {
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+        }
+      });
+      const data = await res.json();
+      const contentRaw = atob(data.content);
+      const newContent = contentRaw + `\n${number}`;
+      const updatedBase64 = btoa(newContent);
 
-      const getFile = await fetch(REPO_URL, {
-        headers: { Authorization: `Bearer ${TOKEN}` }
-      });
-      const fileData = await getFile.json();
+      const updateRes = await fetch(apiURL, {
+        method: 'PUT',
+        headers: {
+          Authorization: `token ${GITHUB_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          message: `Tambah nomor ${number}`,
+          content: updatedBase64,
+          sha: data.sha,
+        })
+      });
 
-      const update = await fetch(REPO_URL, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${TOKEN}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          message: "update nomor via web",
-          content: updateContent,
-          sha: fileData.sha
-        })
-      });
+      if (updateRes.ok) {
+        alert('✅ Nomor berhasil ditambahkan ke GitHub!');
+        document.getElementById('phoneNumber').value = '';
+      } else {
+        alert('❌ Gagal menambahkan nomor.');
+      }
+    }
+  </script>
 
-      if (update.ok) {
-        alert("✅ Nomor berhasil ditambahkan!");
-        document.getElementById("nomor").value = "";
-      } else {
-        alert("❌ Gagal update ke GitHub.");
-      }
-    }
-  </script>
+  <!-- Partikel latar belakang -->
+  <script>
+    const canvas = document.getElementById('particles');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let particlesArray = [];
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.size = Math.random() * 2 + 1;
+        this.speedX = Math.random() * 1 - 0.5;
+        this.speedY = Math.random() * 1 - 0.5;
+      }
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+      }
+      draw() {
+        ctx.fillStyle = '#00f7ff';
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    function initParticles() {
+      particlesArray = [];
+      for (let i = 0; i < 100; i++) {
+        particlesArray.push(new Particle());
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      for (let i = 0; i < particlesArray.length; i++) {
+        particlesArray[i].update();
+        particlesArray[i].draw();
+      }
+      requestAnimationFrame(animateParticles);
+    }
+
+    initParticles();
+    animateParticles();
+  </script>
 </body>
 </html>
